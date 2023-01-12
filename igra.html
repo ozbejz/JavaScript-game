@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="stili.css">
+</head>
+<body>
+  <h1><a href="igra.html">Brick Braker</a></h1>
+  <script> 
+    /*ne dela, ce klicem funkcijo iz skripte.js */
+    if(localStorage.getItem('desno') === null){
+      localStorage.setItem('levo', 'ArrowLeft');
+      localStorage.setItem('desno', 'ArrowRight');
+      localStorage.setItem('brickRowCount', 3);
+      localStorage.setItem('highScore', 0);
+    }
+  </script>
+  <button onclick="play()">play</button>
+  <button onclick="window.location.href='settings.html';">settings</button>
+  <canvas id = "myCanvas" width="1000" height="500"></canvas>
+  <script src="skripte.js"></script>
+  <div id="counter"></div>
+  <div id="score"></div>
+  <div id="highScore"></div>
+</body>
+</html>
