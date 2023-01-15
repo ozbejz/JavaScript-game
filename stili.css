@@ -4,10 +4,10 @@
   margin: 0;
   padding: 0;
   font-family:  'Poppins', sans-seri;
+  background-color: rgb(240, 239, 228);
 }
 
 canvas {
-  background: #eee;
   display: block;
   margin: 0 auto;
 }
@@ -23,7 +23,7 @@ h1,a{
 div{
   text-align: center;
   margin: 10px;
-  color: rgba(196, 135, 107, 0.712);
+  color: rgb(194, 79, 26);
 }
 
 button{

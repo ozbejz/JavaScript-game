@@ -10,8 +10,8 @@ var ballRadius = 10;
 let bx = canvas.width/2;
 let by = canvas.height-20;
 
-let dx = 2;
-let dy = -2;
+let dx = 3;
+let dy = -3;
 
 let brickRowCount = localStorage.getItem('brickRowCount');
 let brickColumnCount = 11;
@@ -22,6 +22,35 @@ let brickOffsetTop = 30;
 let brickOffsetLeft = 30;
 
 let highScore = localStorage.getItem('highScore');
+
+// dobi kontrole is localstorage, ko je keyboard input, preveri ce je prava koda, plosca se premika dokler je pritisnjen
+var rightPressed = false;
+var leftPressed = false;
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+let desno;
+let levo;
+
+function keyDownHandler(e) {
+  desno = localStorage.getItem('desno');
+  levo = localStorage.getItem('levo');
+    if(e.code == desno) {
+        rightPressed = true;
+    }
+    else if(e.code == levo) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.code == desno) {
+        rightPressed = false;
+    }
+    else if(e.code == levo) {
+        leftPressed = false;
+    }
+}
 
 let bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
@@ -52,7 +81,7 @@ function drawB() {
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, 10, 0, Math.PI*2);
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "rgb(194, 79, 26)";
     ctx.fill();
     ctx.closePath();
     
@@ -64,14 +93,18 @@ function drawBall() {
         dy = -dy;
     }
 
-    else if(y + dy > canvas.height-20-ballRadius) {
+    else if(y + dy > canvas.height-10-ballRadius) {
         if(x > bx && x < bx + 100) {
             dy = -dy;
         }
         else{
+            x = canvas.width/2;
+            y = canvas.height-30;
+            bx = canvas.width/2;
+            by = canvas.height-20;
             lives--;
             if(!lives){
-              // ko je konec igre preveri, ce je to highscore, resetira igro
+              // ko je konec igre preveri ce je to highscore, nato resetira igro
                 if(score > highScore){
                   highScore = score;
                   localStorage.setItem('highScore', score);
@@ -96,11 +129,13 @@ function draw() {
     document.getElementById("counter").innerHTML="lives: " + lives;
     document.getElementById("score").innerHTML="score: " + score;
     document.getElementById("highScore").innerHTML="high score: " + highScore;
+    document.getElementById("tezavnost").innerHTML="tezavnost: " + localStorage.getItem("tezavnost");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawBlock();
     drawB();
     collisionDetection();
+    updateBlock();
     x += dx;
     y += dy;
 }
@@ -113,8 +148,20 @@ function drawBlock(){
     ctx.closePath();
 }
 
-function updateBlock(i){
-  bx += i; // preprosto se poveca/pomanjsa pozicija bloka za 8, vizualno ne zgleda prevec dobro
+function updateBlock(){
+  // dokler drzimo tipko za levo/desno se premika plosca
+  if(rightPressed) {
+    bx += 7;
+    if (bx + 100 > canvas.width){
+        bx = canvas.width - 100;
+    }
+  }
+  else if(leftPressed) {
+      bx -= 7;
+      if (bx < 0){
+          bx = 0;
+      }
+  }
 }
 
 function collisionDetection() {
@@ -134,16 +181,17 @@ function collisionDetection() {
                 localStorage.setItem('highScore', score);
               }
               alert("game over!");
-              /* ne dela
-              let current = localStorage.getItem('brickRowCount');
-              localStorage.setItem('brickRowCount', current+1);
-              brickRowCount = localStorage.getItem('brickRowCount');
-              for (let c = 0; c < brickColumnCount; c++) {
-                bricks[c] = [];
-                for (let r = 0; r < brickRowCount; r++) {
-                  bricks[c][r] = { x: 0, y: 0, status: 1 };
+              x = canvas.width/2; // pozicija zoge
+              y = canvas.height-30;
+              lives=3;
+                score = 0;
+                for (let c = 0; c < brickColumnCount; c++) {
+                  bricks[c] = [];
+                  for (let r = 0; r < brickRowCount; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1 };
+                  }
                 }
-              }*/
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
           }
         }
@@ -153,6 +201,7 @@ function collisionDetection() {
 
 let playCount = 0; // da uporabnik ne more spammat
 function play(){
+  canvas.style = "border: 1px solid black; background-color: rgb(214, 202, 228);";
   playCount++;
   if(playCount < 2)
     setInterval(draw, 10);
@@ -165,24 +214,11 @@ function setDefaults(){
     localStorage.setItem('desno', 'ArrowRight');
     localStorage.setItem('brickRowCount', 3);
     localStorage.setItem('highScore', 0);
+    localStorage.setItem('tezavnost', 'normalna');
+    
   }
 }
 
-/* dobi kontrole is localstorage, ce se pritisne prava tipka se premakne blok */
-document.addEventListener('keydown', (event)=>{
-  let desno = localStorage.getItem('desno');
-  let levo = localStorage.getItem('levo');
-  console.log('desno: ', desno);
-  let code = event.code;
-    switch(code){
-        case levo:
-            updateBlock(-8);
-            break;
-        case desno:
-            updateBlock(8);
-            break;
-    }
-})
 
 // gumbom se doda event listener, ce je pritisnjen, caka na vhod tipkovnice(za kontrole) dokler ne pritisnemo kaj drugega
 function settings(){
@@ -198,9 +234,11 @@ function settings(){
   })
   document.getElementById("tezavnostL").addEventListener('click', ()=>{
     localStorage.setItem('brickRowCount', 2);
+    localStorage.setItem('tezavnost', 'lahka');
   })
   document.getElementById("tezavnostT").addEventListener('click', ()=>{
     localStorage.setItem('brickRowCount', 4);
+    localStorage.setItem('tezavnost', 'tezka');
   })
 }
 
