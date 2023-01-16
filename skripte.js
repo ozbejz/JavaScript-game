@@ -1,5 +1,6 @@
 let lives = 3;
 let score = 0;
+let lvlScore = 0;
 
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
@@ -14,8 +15,8 @@ let dx = 3;
 let dy = -3;
 
 let brickRowCount = localStorage.getItem('brickRowCount');
-let brickColumnCount = 11;
-let brickWidth = 75;
+let brickColumnCount = 10;
+let brickWidth = 85;
 let brickHeight = 20;
 let brickPadding = 10;
 let brickOffsetTop = 30;
@@ -109,6 +110,8 @@ function drawBall() {
                   highScore = score;
                   localStorage.setItem('highScore', score);
                 }
+                rightPressed = false;
+                leftPressed = false;
                 alert("GAME OVER");
                 lives=3;
                 score = 0;
@@ -174,24 +177,29 @@ function collisionDetection() {
             dy = -dy;
             b.status = 0;
             score++;
+            lvlScore++;
             /* ce je score enak stevilu blokov, je igralec zmagal */
-            if(score == brickRowCount*brickColumnCount) {
+            if(lvlScore == brickRowCount*brickColumnCount) {
               if(score > highScore){
                 highScore = score;
                 localStorage.setItem('highScore', score);
               }
-              alert("game over!");
-              x = canvas.width/2; // pozicija zoge
-              y = canvas.height-30;
-              lives=3;
-                score = 0;
-                for (let c = 0; c < brickColumnCount; c++) {
-                  bricks[c] = [];
-                  for (let r = 0; r < brickRowCount; r++) {
-                    bricks[c][r] = { x: 0, y: 0, status: 1 };
-                  }
+              rightPressed = false;
+              leftPressed = false;
+              for (let c = 0; c < brickColumnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brickRowCount; r++) {
+                  bricks[c][r] = { x: 0, y: 0, status: 1 };
                 }
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+              }
+              x = canvas.width/2;
+              y = canvas.height-30;
+              bx = canvas.width/2;
+              by = canvas.height-20;
+              lvlScore = 0;
+              dx += 0.5;
+              dy += 0.5;
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
           }
         }
